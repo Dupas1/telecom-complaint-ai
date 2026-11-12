@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.egg-info/
+*.py[cod]
+.venv/
+.ruff_cache/
+.pytest_cache/
+
+# Segredos (HF token, credenciais do Milvus)
+.env
+
+# Dados e pesos: versiona só a estrutura, nunca o conteúdo
+data/**
+models/**
+!data/**/
+!models/**/
+!**/.gitkeep
+
+# Notebooks / IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Volumes do Milvus (Docker)
+volumes/

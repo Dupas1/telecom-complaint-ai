@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "telecom-complaint-ai"
+version = "0.1.0"
+description = "Triagem, RAG regulatório (Anatel RGC) e LLM fine-tuned para reclamações de telecom."
+requires-python = ">=3.11,<3.12"
+
+# Base: usada por todos os módulos (config, dados, logging).
+dependencies = [
+    "numpy>=1.26",
+    # <3: evidently 0.7.x usa API interna removida no pandas 3 (infer_dtype_from_object).
+    "pandas>=2.2,<3",
+    "pyarrow>=15.0",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Camada 1a — ML clássico
+ml = [
+    "scikit-learn>=1.5",
+    "lightgbm>=4.3",
+    "shap>=0.45",
+    "optuna>=3.6",
+    "matplotlib>=3.8",
+]
+# Camada 1b — Deep Learning (torch é instalado à parte, com CUDA)
+dl = [
+    "transformers>=4.44",
+    "datasets>=2.20",
+    "accelerate>=0.33",
+    "evaluate>=0.4",
+]
+# Camada 2 — RAG
+rag = [
+    "docling>=2.0",
+    "pymilvus[model]>=2.4",
+    "sentence-transformers>=3.0",
+    "langchain>=0.3",
+    # <0.4: ragas 0.4.x importa langchain_community.chat_models.vertexai, removido na 0.4.
+    "langchain-community>=0.3,<0.4",
+    "langgraph>=0.2",
+    "ragas>=0.2",
+]
+# Camada 4 — Produção
+api = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "slowapi>=0.1.9",
+]
+monitoring = [
+    "evidently>=0.4",
+]
+# Desenvolvimento (PC e CI apenas)
+dev = [
+    "ruff>=0.5",
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+    "ipykernel>=6.29",
+]
+# Atalho: tudo que roda no PC local
+local = ["telecom-complaint-ai[ml,dl,rag,api,monitoring,dev]"]
+
+# Instala a pasta src/ como pacote: `from src.ml import ...` funciona em qualquer lugar
+# (scripts, testes, Colab após git clone), sem gambiarras de sys.path.
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# E/F: erros básicos | I: ordem de imports | B: bugs comuns | UP: sintaxe moderna | N: nomes
+select = ["E", "F", "I", "B", "UP", "N"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
