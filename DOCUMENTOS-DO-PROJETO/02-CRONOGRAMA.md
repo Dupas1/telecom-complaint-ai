@@ -49,12 +49,22 @@
 
 **Você vai aprender:** pandas, análise exploratória, definição de alvo (*target*), vazamento de dados (*data leakage*), divisão treino/teste.
 
-- [ ] Carregar o `dados2025.json` (200k+ registros) e filtrar as operadoras de telecom
-- [ ] EDA: distribuição de `status`, `nota`, empresas, tamanho dos textos, valores ausentes
-- [ ] **Definir o alvo de risco** (ex.: `status == "Não Resolvida"` ou nota baixa) e medir o desbalanceamento
+- [x] Carregar o `dados2025.json` (200k+ registros) e filtrar as operadoras de telecom
+- [x] EDA: distribuição de `status`, `nota`, empresas, tamanho dos textos, valores ausentes
+- [x] **Definir o alvo de risco** (ex.: `status == "Não Resolvida"` ou nota baixa) e medir o desbalanceamento
 - [ ] **Decidir como obter as categorias.** O dataset não tem coluna de categoria. Opções: regras por palavras-chave, clustering ou rotulagem manual de uma amostra. Vamos discutir isso
-- [ ] Separar treino/validação/teste (avaliar divisão **temporal** para simular produção)
-- [ ] Gerar `data/processed/telecom_ml.parquet`
+- [x] Separar treino/validação/teste (avaliar divisão **temporal** para simular produção)
+- [x] Gerar `data/processed/telecom_ml.parquet`
+
+**Decisões e achados (2026-11-13)** — código em `src/ml/data.py`, scripts em `scripts/`:
+- **Escopo:** só as 4 grandes (Tim, Claro [Celular/Residencial/Embratel/NET], Vivo, Oi [Fixo/Celular]) → 17.676 reclamações. SKY, regionais e falsos positivos ("Sky Airline", "Oi Paggo") fora.
+- **Alvo:** `risco = status == "Não Resolvido" OU nota <= 2`. A auditoria (`scripts/audit_labels.py`) mostrou que "resolvido com nota 1–2" também é risco real (churn, ameaça de ação).
+- **Desbalanceamento:** 1.654 positivos de 17.620 = **9,4%** (~1 : 10). Acurácia não serve; usar F1 / PR-AUC / recall.
+- **Vazamento:** `status`, `nota`, `resposta`, `comentario` só existem depois da reclamação → nunca são features (nem entram no parquet).
+- **Limpeza:** 30 notas inválidas (10 ou vazia) → NaN; 56 relatos duplicados removidos (mantido o mais recente).
+- **Split temporal** (`configs/base.yaml`): treino jul/22–dez/23 (12.431, 9,3%) · validação jan–jun/24 (2.923, 9,9%) · teste jul–dez/24 (2.266, 9,3%).
+- **Limitações:** só há reclamações já respondidas e avaliadas (viés de seleção); ~105 "Não Resolvido" com nota ≥ 4 (ruído de rótulo).
+- **⚠️ Risco para a Fase 6:** 94,5% das respostas das operadoras são modelo pronto ("veja a carta em anexo"); só 765 pares "Resolvido + nota 5" têm resposta real (< 1.200 planejados).
 - [ ] Gerar `data/processed/telecom_finetuning.jsonl` (1.200 pares, status "Resolvida" e nota 5)
 
 **Pronto quando:** os dois arquivos existem, são gerados por um script e o desbalanceamento está documentado.

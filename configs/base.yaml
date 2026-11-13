@@ -14,3 +14,11 @@ paths:
   processed_dir: data/processed
   models_dir: models
   reports_dir: reports
+
+# Divisão TEMPORAL (Fase 1): treina no passado, avalia no "futuro".
+#   treino:    data <  val_start
+#   validação: val_start <= data < test_start
+#   teste:     data >= test_start   (usar UMA vez, no final)
+split:
+  val_start: 2024-01-01
+  test_start: 2024-07-01

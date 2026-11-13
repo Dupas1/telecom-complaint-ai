@@ -12,10 +12,11 @@ Ordem de precedência (a primeira que tiver o valor vence):
     4. configs/base.yaml                                (valores do projeto)
 """
 
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import BaseModel, SecretStr, field_validator
+from pydantic import BaseModel, SecretStr, field_validator, model_validator
 from pydantic_settings import (
     BaseSettings,
     PydanticBaseSettingsSource,
@@ -41,6 +42,19 @@ class PathsConfig(BaseModel):
         return valor if valor.is_absolute() else PROJECT_ROOT / valor
 
 
+class SplitConfig(BaseModel):
+    """Cortes da divisão temporal: treino < val_start <= validação < test_start <= teste."""
+
+    val_start: date
+    test_start: date
+
+    @model_validator(mode="after")
+    def _ordem_das_datas(self) -> "SplitConfig":
+        if self.val_start >= self.test_start:
+            raise ValueError("split.val_start precisa ser anterior a split.test_start")
+        return self
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         yaml_file=PROJECT_ROOT / "configs" / "base.yaml",
@@ -53,6 +67,7 @@ class Settings(BaseSettings):
 
     seed: int
     paths: PathsConfig
+    split: SplitConfig
 
     # SecretStr esconde o valor em print/log: aparece como '**********'.
     # Use settings.hf_token.get_secret_value() só onde o token é realmente necessário.
