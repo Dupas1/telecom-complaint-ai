@@ -32,12 +32,12 @@
 
 **Você vai aprender:** ambientes virtuais, gerenciamento de dependências, Git, CUDA.
 
-- [ ] Instalar Python 3.11 e criar o venv do projeto
-- [ ] Criar o `pyproject.toml` com grupos de dependências (`ml`, `rag`, `api`, `dev`)
-- [ ] Instalar o PyTorch com CUDA e confirmar que a GTX 1660 é reconhecida
+- [x] Instalar Python 3.11 e criar o venv do projeto
+- [x] Criar o `pyproject.toml` com grupos de dependências (`ml`, `rag`, `api`, `dev`)
+- [x] Instalar o PyTorch com CUDA e confirmar que a GTX 1660 é reconhecida
 - [ ] Instalar WSL2 + Docker Desktop
 - [ ] Criar contas gratuitas: GitHub, Hugging Face (e usar a conta Google para o Colab)
-- [ ] `git init`, primeiro commit, repositório público no GitHub
+- [x] `git init`, primeiro commit, repositório público no GitHub
 - [ ] CI mínimo no GitHub Actions: Ruff + Pytest (com um teste "hello world")
 - [ ] `src/core/config.py` lendo configurações (YAML + `.env`)
 

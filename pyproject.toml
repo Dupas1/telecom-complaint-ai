@@ -83,3 +83,5 @@ select = ["E", "F", "I", "B", "UP", "N"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+# Cada teste async ganha um event loop novo: isolamento entre testes.
+asyncio_default_fixture_loop_scope = "function"

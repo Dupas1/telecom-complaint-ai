@@ -1,0 +1,38 @@
+name: CI
+
+# Roda a cada push na main e em todo pull request.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Baixa o código do repositório para a máquina do CI.
+      - uses: actions/checkout@v4
+
+      # 2. Instala o Python 3.11 e guarda o cache do pip entre execuções.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      # 3. Instala só a base + ferramentas de dev (sem torch/CUDA: os testes não usam GPU).
+      #    NÃO usamos o requirements-lock.txt aqui: ele é do ambiente Windows + CUDA (~3 GB).
+      - name: Instalar dependências
+        run: pip install -e ".[dev]"
+
+      # 4. Lint: erros, imports, bugs comuns.
+      - name: Ruff (lint)
+        run: ruff check .
+
+      # 5. Formatação: falha se algum arquivo não estiver formatado.
+      - name: Ruff (formatação)
+        run: ruff format --check .
+
+      # 6. Testes.
+      - name: Pytest
+        run: pytest
