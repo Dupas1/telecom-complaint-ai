@@ -38,8 +38,8 @@
 - [ ] Instalar WSL2 + Docker Desktop
 - [ ] Criar contas gratuitas: GitHub, Hugging Face (e usar a conta Google para o Colab)
 - [x] `git init`, primeiro commit, repositório público no GitHub
-- [ ] CI mínimo no GitHub Actions: Ruff + Pytest (com um teste "hello world")
-- [ ] `src/core/config.py` lendo configurações (YAML + `.env`)
+- [x] CI mínimo no GitHub Actions: Ruff + Pytest (com um teste "hello world")
+- [x] `src/core/config.py` lendo configurações (YAML + `.env`)
 
 **Pronto quando:** `torch.cuda.is_available()` retorna `True` e o CI fica verde no GitHub.
 

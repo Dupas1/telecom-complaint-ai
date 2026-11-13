@@ -1,0 +1,16 @@
+# Configuração do projeto (versionada no git).
+# Segredos NÃO entram aqui: vão no .env (veja .env.example).
+# Qualquer valor pode ser sobrescrito por variável de ambiente:
+#   SEED=7                      -> seed
+#   PATHS__RAW_DATA=/outro.json -> paths.raw_data   (dois "_" = nível de dentro)
+
+# Semente aleatória: mesma semente => mesmos splits e mesmos resultados.
+seed: 42
+
+# Caminhos relativos são resolvidos a partir da raiz do projeto.
+paths:
+  raw_data: data/raw/dados2025.json
+  interim_dir: data/interim
+  processed_dir: data/processed
+  models_dir: models
+  reports_dir: reports
