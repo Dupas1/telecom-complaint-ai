@@ -64,7 +64,7 @@
 - **Limpeza:** 30 notas inválidas (10 ou vazia) → NaN; 56 relatos duplicados removidos (mantido o mais recente).
 - **Split temporal** (`configs/base.yaml`): treino jul/22–dez/23 (12.431, 9,3%) · validação jan–jun/24 (2.923, 9,9%) · teste jul–dez/24 (2.266, 9,3%).
 - **Limitações:** só há reclamações já respondidas e avaliadas (viés de seleção); ~105 "Não Resolvido" com nota ≥ 4 (ruído de rótulo).
-- **⚠️ Risco para a Fase 6:** 94,5% das respostas das operadoras são modelo pronto ("veja a carta em anexo"); só 765 pares "Resolvido + nota 5" têm resposta real (< 1.200 planejados).
+- **⚠️ Risco para a Fase 8 (fine-tuning):** 94,5% das respostas das operadoras são modelo pronto ("veja a carta em anexo"); só 765 pares "Resolvido + nota 5" têm resposta real (< 1.200 planejados).
 - [ ] Gerar `data/processed/telecom_finetuning.jsonl` (1.200 pares, status "Resolvida" e nota 5)
 
 **Pronto quando:** os dois arquivos existem, são gerados por um script e o desbalanceamento está documentado.
