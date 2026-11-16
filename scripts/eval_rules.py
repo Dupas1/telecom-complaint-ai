@@ -6,7 +6,8 @@ categoria). Consequências:
 - acurácia simples dos 99 é distorcida (categoria rara pesa igual à comum);
   por isso reportamos a acurácia PONDERADA = soma(precisão_c x fatia_c na val).
 
-Uso:  .venv/Scripts/python.exe scripts/eval_rules.py
+Uso:  .venv/Scripts/python.exe scripts/eval_rules.py [ARQUIVO_GOLD]
+      (padrão: gold_categorias.xlsx em data/processed)
 """
 
 import sys
@@ -20,7 +21,9 @@ from src.ml.categories import add_category
 sys.stdout.reconfigure(encoding="utf-8")
 
 settings = get_settings()
-gold = pd.read_excel(settings.paths.processed_dir / "gold_categorias.xlsx", dtype=str)
+gold_file = sys.argv[1] if len(sys.argv) > 1 else "gold_categorias.xlsx"
+gold = pd.read_excel(settings.paths.processed_dir / gold_file, dtype=str)
+print(f"Gold: {gold_file} ({len(gold)} relatos)")
 # Rótulo final: a correção humana se houver, senão o rótulo aprovado.
 wrong = gold["correto"].str.strip().str.lower() == "n"
 gold["gold"] = gold["categoria_claude"].where(~wrong, gold["categoria_certa"])

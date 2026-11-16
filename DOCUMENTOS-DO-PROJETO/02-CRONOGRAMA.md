@@ -52,7 +52,7 @@
 - [x] Carregar o `dados2025.json` (200k+ registros) e filtrar as operadoras de telecom
 - [x] EDA: distribuição de `status`, `nota`, empresas, tamanho dos textos, valores ausentes
 - [x] **Definir o alvo de risco** (ex.: `status == "Não Resolvida"` ou nota baixa) e medir o desbalanceamento
-- [ ] **Decidir como obter as categorias.** O dataset não tem coluna de categoria. Opções: regras por palavras-chave, clustering ou rotulagem manual de uma amostra. Vamos discutir isso
+- [x] **Decidir como obter as categorias.** O dataset não tem coluna de categoria. Opções: regras por palavras-chave, clustering ou rotulagem manual de uma amostra. Vamos discutir isso
 - [x] Separar treino/validação/teste (avaliar divisão **temporal** para simular produção)
 - [x] Gerar `data/processed/telecom_ml.parquet`
 
@@ -65,6 +65,15 @@
 - **Split temporal** (`configs/base.yaml`): treino jul/22–dez/23 (12.431, 9,3%) · validação jan–jun/24 (2.923, 9,9%) · teste jul–dez/24 (2.266, 9,3%).
 - **Limitações:** só há reclamações já respondidas e avaliadas (viés de seleção); ~105 "Não Resolvido" com nota ≥ 4 (ruído de rótulo).
 - **⚠️ Risco para a Fase 8 (fine-tuning):** 94,5% das respostas das operadoras são modelo pronto ("veja a carta em anexo"); só 765 pares "Resolvido + nota 5" têm resposta real (< 1.200 planejados).
+
+**Categorias (2026-11-16)** — código em `src/ml/categories.py`, scripts `discover_topics.py`, `sample_gold.py`, `eval_rules.py`:
+- **Descoberta:** TF-IDF + KMeans (K=12, só treino) para *descobrir* os temas. Duas rodadas: a 1ª tinha grupos falsos causados pelo placeholder de anonimização `XXX` e por palavras genéricas. O KMeans **não rotula**; só deu ideias.
+- **11 categorias:** cobranca, reajuste_oferta, qualidade_tecnica, cancelamento, portabilidade, mudanca_plano, recarga, telemarketing, negativacao, atendimento, outros. Convenção: classificar pela **causa**, não pelo sintoma (ex.: cobrança após portabilidade → `portabilidade`).
+- **Regras:** regex sobre texto normalizado; pontuação = menções × peso tipo IDF (`log(N/df)` no treino), porque "fatura" aparece em quase tudo. `atendimento` é *fallback* (é estilo de reclamação, não assunto).
+- **Gold sets (validação, revisados por humano):** gold 1 = 99 relatos (9/categoria), gold 2 = 55 (5/categoria, sem repetir o gold 1). Ficam em `data/processed/` (fora do git: têm nomes de pessoas).
+- **Resultado honesto: ~58% de acurácia ponderada no gold 2 (±13 p.p.).** As regras v1 tiveram 71% no gold 1; depois de ajustadas olhando os erros do gold 1, foram para 81% *no mesmo gold* (otimista) e 58% no gold 2 → **overfitting detectado**. O erro dominante é estrutural: relato com vários assuntos (ex.: "fiz portabilidade e o valor prometido não veio") — palavra-chave não distingue causa de contexto.
+- **Decisão:** parar de ajustar regras. `categoria_regra` entra no parquet como **rótulo fraco** e serve de *baseline*. Os 154 rótulos humanos vão treinar/avaliar um classificador de verdade (SetFit / BERT) na fase de NLP. ⚠️ Os golds estão no split de validação: se forem usados para treino, excluí-los da avaliação.
+- **Sinal para o risco:** telemarketing 25,6% de risco (2,7× a média), atendimento 21%, negativação 13%; cancelamento/portabilidade ~6%.
 - [ ] Gerar `data/processed/telecom_finetuning.jsonl` (1.200 pares, status "Resolvida" e nota 5)
 
 **Pronto quando:** os dois arquivos existem, são gerados por um script e o desbalanceamento está documentado.
